@@ -7,13 +7,7 @@ const { spawn } = require("child_process");
 const initProject = (dir) => {
   return new Promise((resolve, reject) => {
     try {
-      const init = spawn("platformio", [
-        "init",
-        "-b",
-        "nodemcu-32s",
-        "-d",
-        dir,
-      ]);
+      const init = spawn("pio", ["init", "-b", "nodemcu-32s", "-d", dir]);
 
       init.stdout.on("data", (data) => {
         console.log(`stdout: ${data}`);
@@ -34,8 +28,67 @@ const initProject = (dir) => {
   });
 };
 
+const installLibrary = (dir, library) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const init = spawn("pio", ["lib", "install", library], { cwd: dir });
+
+      init.stdout.on("data", (data) => {
+        console.log(`stdout: ${data}`);
+      });
+
+      init.stderr.on("data", (data) => {
+        console.error(`stderr: ${data}`);
+        reject(data);
+      });
+
+      init.on("close", () => {
+        console.log(`Library ${library} installed`);
+        resolve(true);
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  });
+};
+
+const installLibraries = (dir, libraries) => {
+  return Promise.all(libraries.map((library) => installLibrary(dir, library)));
+};
+
 const createDirectory = (dir) => {
   return fs.mkdir(dir);
+};
+
+const buildFirmware = (dir) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const init = spawn("pio", ["run"], { cwd: dir });
+
+      init.stdout.on("data", (data) => {
+        console.log(`stdout: ${data}`);
+      });
+
+      init.stderr.on("data", (data) => {
+        console.error(`stderr: ${data}`);
+        reject(data);
+      });
+
+      init.on("close", () => {
+        console.log(`Firmware built!`);
+        resolve(true);
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  });
+};
+
+const extractBinary = (dir) => {
+  return fs.copyFile(
+    path.join(dir, ".pio", "build", "nodemcu-32s", "firmware.bin"),
+    path.join(dir, "firmware.bin")
+  );
 };
 
 const generateFirmware = (id, cwd, templates) => {
@@ -78,10 +131,17 @@ const init = async () => {
   const dir = path.join(process.cwd(), "src", id);
   const cwd = path.join(process.cwd(), "src");
   const templates = path.join(__dirname, "../_templates");
+  const libraries = [
+    "knolleary/PubSubClient@^2.8",
+    "bblanchon/ArduinoJson@^6.17.3",
+  ];
 
   await createDirectory(dir);
   await initProject(dir);
   const { success } = await generateFirmware(id, cwd, templates);
+  await installLibraries(dir, libraries);
+  await buildFirmware(dir);
+  await extractBinary(dir);
   process.exit(success ? 0 : 1);
 };
 
