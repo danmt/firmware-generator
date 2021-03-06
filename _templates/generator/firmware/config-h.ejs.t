@@ -1,5 +1,5 @@
 ---
-to: ./src/<%= name %>/config.h
+to: ./<%= name %>/src/config.h
 ---
 
 #ifndef CONFIG_H

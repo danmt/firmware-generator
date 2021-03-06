@@ -1,5 +1,5 @@
 ---
-to: ./src/<%= name %>/wifi.cpp
+to: ./<%= name %>/src/wifi.cpp
 ---
 
 #include <WiFi.h>

@@ -1,5 +1,5 @@
 ---
-to: ./src/<%= name %>/wifi.h
+to: ./<%= name %>/src/wifi.h
 ---
 
 #ifndef WIFI_H

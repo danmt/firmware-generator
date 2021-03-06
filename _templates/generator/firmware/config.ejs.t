@@ -1,5 +1,5 @@
 ---
-to: ./src/<%= name %>/config.cpp
+to: ./<%= name %>/src/config.cpp
 ---
 
 #include <config.h>
