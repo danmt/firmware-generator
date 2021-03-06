@@ -4,6 +4,7 @@ const { promises: fs } = require("fs");
 const { runner, Logger } = require("hygen");
 const { spawn } = require("child_process");
 const rimraf = require("rimraf");
+const AdmZip = require("adm-zip");
 
 const initProject = (dir) => {
   return new Promise((resolve, reject) => {
@@ -104,6 +105,20 @@ const extractBinary = (sourceDir, destDir) => {
   );
 };
 
+const zipProject = (srcDir, destDir) => {
+  return new Promise((resolve, reject) => {
+    const zip = new AdmZip();
+    zip.addLocalFolder(srcDir);
+    zip.writeZip(`${destDir}/project.zip`, (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(true);
+      }
+    });
+  });
+};
+
 const generateFirmware = (id, cwd, templates) => {
   return runner(
     [
@@ -157,6 +172,7 @@ const init = async () => {
   await installLibraries(projectDir, libraries);
   await buildFirmware(projectDir);
   await extractBinary(projectDir, dir);
+  await zipProject(projectDir, dir);
   await removeDirectory(projectDir);
 
   process.exit(success ? 0 : 1);

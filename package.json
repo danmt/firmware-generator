@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "adm-zip": "^0.5.3",
     "hygen": "^6.0.4",
     "rimraf": "^3.0.2",
     "uuid": "^8.3.2"
