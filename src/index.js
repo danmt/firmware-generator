@@ -156,9 +156,8 @@ const generateFirmware = (id, cwd, templates) => {
 
 const init = async () => {
   const id = uuid();
-  const dir = path.join(process.cwd(), "src", id);
-  const cwd = path.join(process.cwd(), "src");
-  const templates = path.join(__dirname, "../_templates");
+  const dir = path.join(__dirname, "output", id);
+  const templates = path.join(__dirname, "_templates");
   const libraries = [
     "knolleary/PubSubClient@^2.8",
     "bblanchon/ArduinoJson@^6.17.3",
@@ -168,7 +167,7 @@ const init = async () => {
   await createDirectory(dir);
   await createDirectory(projectDir);
   await initProject(projectDir);
-  const { success } = await generateFirmware(id, cwd, templates);
+  const { success } = await generateFirmware(id, projectDir, templates);
   await installLibraries(projectDir, libraries);
   await buildFirmware(projectDir);
   await extractBinary(projectDir, dir);

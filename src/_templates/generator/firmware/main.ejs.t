@@ -1,5 +1,5 @@
 ---
-to: ./<%= name %>/project/src/main.cpp
+to: ./src/main.cpp
 ---
 
 #include <Arduino.h>
