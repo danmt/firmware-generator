@@ -1,5 +1,5 @@
 ---
-to: ./<%= name %>/src/mqtt.cpp
+to: ./<%= name %>/project/src/mqtt.cpp
 ---
 
 #include <PubSubClient.h>

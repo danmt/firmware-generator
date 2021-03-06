@@ -3,6 +3,7 @@ const { v4: uuid } = require("uuid");
 const { promises: fs } = require("fs");
 const { runner, Logger } = require("hygen");
 const { spawn } = require("child_process");
+const rimraf = require("rimraf");
 
 const initProject = (dir) => {
   return new Promise((resolve, reject) => {
@@ -60,6 +61,18 @@ const createDirectory = (dir) => {
   return fs.mkdir(dir);
 };
 
+const removeDirectory = (dir) => {
+  return new Promise((resolve, reject) => {
+    rimraf(dir, {}, (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(true);
+      }
+    });
+  });
+};
+
 const buildFirmware = (dir) => {
   return new Promise((resolve, reject) => {
     try {
@@ -84,10 +97,10 @@ const buildFirmware = (dir) => {
   });
 };
 
-const extractBinary = (dir) => {
+const extractBinary = (sourceDir, destDir) => {
   return fs.copyFile(
-    path.join(dir, ".pio", "build", "nodemcu-32s", "firmware.bin"),
-    path.join(dir, "firmware.bin")
+    path.join(sourceDir, ".pio", "build", "nodemcu-32s", "firmware.bin"),
+    path.join(destDir, "firmware.bin")
   );
 };
 
@@ -135,13 +148,17 @@ const init = async () => {
     "knolleary/PubSubClient@^2.8",
     "bblanchon/ArduinoJson@^6.17.3",
   ];
+  const projectDir = path.join(dir, "project");
 
   await createDirectory(dir);
-  await initProject(dir);
+  await createDirectory(projectDir);
+  await initProject(projectDir);
   const { success } = await generateFirmware(id, cwd, templates);
-  await installLibraries(dir, libraries);
-  await buildFirmware(dir);
-  await extractBinary(dir);
+  await installLibraries(projectDir, libraries);
+  await buildFirmware(projectDir);
+  await extractBinary(projectDir, dir);
+  await removeDirectory(projectDir);
+
   process.exit(success ? 0 : 1);
 };
 

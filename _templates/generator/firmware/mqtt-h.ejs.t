@@ -1,5 +1,5 @@
 ---
-to: ./<%= name %>/src/mqtt.h
+to: ./<%= name %>/project/src/mqtt.h
 ---
 
 #ifndef MQTT_H
